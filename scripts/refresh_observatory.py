@@ -90,8 +90,6 @@ def refresh() -> dict:
                 "rows": rows}
 
     stage("burns", collect_burns, interval=1800)
-    stage("zeroBurns", lambda previous: observatory.zero_burns(previous, now),
-          interval=6*3600)
     stage("trades", lambda previous: trades.collect(previous, now - trade_history.YEAR,
                                                       now, max_pages=35))
     if trade_history.refresh(snap, now, save=save):
@@ -111,6 +109,8 @@ def refresh() -> dict:
     stage("domains", lambda _: domains.enrich(snap, now), interval=1800)
     stage("fragmentNumbers", lambda _: badges.refresh_fragment_numbers(snap, now),
           interval=1800)
+    stage("zeroBurns", lambda previous: observatory.zero_burns(previous, now),
+          interval=6*3600)
     snap["errors"] = sorted(errors)
     if any(snap.get(key) for key in ("holders", "trades", "rates", "pools")):
         snap["updated"] = int(time.time())

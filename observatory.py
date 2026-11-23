@@ -61,11 +61,16 @@ def zero_burns(previous, now):
     start = max(1, previous.get("asOf", now - 7 * 86400) - 3600)
     answers = {r["tx"]: r for r in previous.get("rows", []) if r["time"] < start}
     old = {r["tx"]: r for r in previous.get("rows", [])}
+    deadline = time.monotonic() + 90
     for offset in range(0, 10000, 100):
+        if time.monotonic() >= deadline:
+            raise RuntimeError("Zero-address scan time budget exceeded; previous verified data retained")
         query = urlencode({"jetton_master": MASTER, "owner_address": ZERO, "direction": "in",
                            "start_utime": start, "end_utime": now, "offset": offset, "limit": 100})
         rows = fetch("/jetton/transfers?" + query, api=TONCENTER)["jetton_transfers"]
         for item in rows:
+            if time.monotonic() >= deadline:
+                raise RuntimeError("Zero-address verification time budget exceeded; previous verified data retained")
             key = hash_hex(item["transaction_hash"])
             if key in answers:
                 continue
