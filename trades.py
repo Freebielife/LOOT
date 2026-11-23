@@ -49,6 +49,7 @@ def collect_pool(pool, start, end, max_pages):
         path = f"/accounts/{pool}/events?" + urlencode(params)
         page = fetch(path)
         events = page["events"]
+        print("Trade page", _ + 1, "events", len(events), "oldest", min((e["timestamp"] for e in events), default=0), flush=True)
         for event in events:
             if start <= event["timestamp"] <= end:
                 for row in swap_rows(event, pool):

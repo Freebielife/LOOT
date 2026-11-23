@@ -91,7 +91,7 @@ def refresh() -> dict:
 
     stage("burns", collect_burns, interval=1800)
     stage("trades", lambda previous: trades.collect(previous, now - trade_history.YEAR,
-                                                      now, max_pages=35))
+                                                      now, max_pages=180))
     if trade_history.refresh(snap, now, save=save):
         errors.add("tradeHistory")
     else:
