@@ -1,6 +1,8 @@
 /* Estimated valuation in TON or USD, with no external chart library. */
 (function(root){
   function marketCapSeries(snapshot, duration, buckets=60, currency="TON"){
+    const cached=snapshot.compactView?.charts?.[duration+":"+currency];
+    if(cached)return cached;
     const supply=Number(snapshot.holders?.totalSupply), end=Number(snapshot.trades?.asOf), start=end-duration;
     const validSupply=Number.isFinite(supply)&&supply>0;
     const rates=snapshot.rates?.rows||[];

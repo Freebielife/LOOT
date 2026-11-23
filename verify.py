@@ -1,5 +1,6 @@
 """Reject structurally invalid snapshots and look for a truncated packaged page."""
 import json
+import subprocess
 import re
 from decimal import Decimal
 from pathlib import Path
@@ -39,6 +40,7 @@ if "rates" in snapshot:
     assert all(0 < price < 1000 for _, price in rates)
 page = (root / "index.html").read_text()
 payload = re.search(r'<script id="snapshot" type="application/json">(.*?)</script>', page, re.S)
-assert payload and json.loads(payload[1]) == snapshot
+expected = json.loads(subprocess.run(["node", str(root / "scripts/compact_snapshot.cjs")], input=json.dumps(snapshot), text=True, capture_output=True, check=True).stdout)
+assert payload and json.loads(payload[1]) == expected
 assert not any(token in page for token in ("/*APP*/", "/*STYLE*/", "/*LOADER*/", "/*MARKET_CAP*/", "__PROJECT_ART__"))
 print("Snapshot and standalone page validated.")

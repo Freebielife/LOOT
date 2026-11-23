@@ -402,7 +402,7 @@ function updateBurnTotals(){
   }
 }
 function lastTradeByWallet(){
-  const latest=new Map();
+  const latest=new Map(Object.entries(snapshot.compactView?.lastActivity||{}));
   for(const r of snapshot.trades?.rows||[]){
     if(!latest.has(r.wallet))latest.set(r.wallet,r.kind);
   }
@@ -432,9 +432,10 @@ function volumeBars(start,end,width,left,right){
  }
 
  const rows=snapshot.trades?.rows||[];
- const bins=Array.from({length:30},()=>({buy:0,sell:0}));
+ const cachedBins=snapshot.compactView?.volumes?.[end-start];
+ const bins=cachedBins?cachedBins.map(b=>({...b})):Array.from({length:30},()=>({buy:0,sell:0}));
  const step=(end-start)/bins.length;
- if(step>0){
+ if(step>0&&!cachedBins){
    for(const row of rows){
      if((row.kind!=="buy"&&row.kind!=="sell")||row.time<start||row.time>end)continue;
      const value=Number(row.ton);
@@ -693,7 +694,9 @@ function stats(){
    [t("buys"),buys.length,t("volumeUnit")+" · "+format(sum(buys,"ton"))+" TON",trades,"buy"],
    [t("sells"),sells.length,t("volumeUnit")+" · "+format(sum(sells,"ton"))+" TON",trades,"sell"],
    ["👛 "+t("people"),count(buys)+" / "+count(sells),t("buyers")+" / "+t("sellersLabel"),trades,""],
-   [t("burnedTotal"),format(sum(within(burns),"project")),t("events")+" · "+within(burns).length,burns,"burn"]];
+   [t("burnedTotal"),format(sum(within(burns),"tokenAmount")),t("events")+" · "+within(burns).length,burns,"burn"]];
+ const daily=snapshot.compactView?.daily;
+ if(daily){values[0][1]=daily.buys;values[0][2]=t("volumeUnit")+" · "+format(daily.buyVolume)+" TON";values[1][1]=daily.sells;values[1][2]=t("volumeUnit")+" · "+format(daily.sellVolume)+" TON";values[2][1]=daily.buyers+" / "+daily.sellers;}
  $("stats").replaceChildren(...values.map(([label,value,detail,source,cls])=>{
    const complete=source&&source.since<=source.asOf-day, item=el("div",undefined,"stat");
    const heading=el("span",undefined,"statHeading "+cls);
@@ -804,6 +807,7 @@ function list(){
  more.textContent=expanded?t("less")+" ↑":t("more")+" ("+(combined.length-10)+") ↓";
 }
 function rankedSellers(source){
+ if(snapshot.compactView?.sellers?.[sellerDays])return snapshot.compactView.sellers[sellerDays].map(r=>({...r,units:BigInt(r.units)}));
  const groups=new Map();
  const cut=(source?.asOf||0)-sellerDays*day;
  for(const row of source?.rows||[]){

@@ -76,7 +76,8 @@
     "hero": {
       "origin": "user_provided",
       "source": "https://chatgpt.com/library?file_id=libfile_b9ac52d5e0b48191a7b16468983ab569&account_id=personal",
-      "file": "web/project-logo.webp"
+      "file": "web/project-logo.webp",
+      "original_sha256": "20561b3c3edfcb456ecc4c81ee8820a2941e844ddfa463087e290611b23c8565"
     },
     "sectionFlag": {
       "source": "User-provided image(10).png, explicitly approved for all branding",
@@ -85,5 +86,18 @@
       "file": "web/project-flag.webp"
     },
     "channel": "https://t.me/lootvault_channel"
+  },
+  "provided_metadata": {
+    "address": "0:8ce031330d514babb91a4a87505fef3ebbf685f4cf430ded4478f5acb8ca33a8",
+    "image": "https://lootvault.lol/token/loot/logo.jpg",
+    "social": [
+      "https://t.me/lootvault_channel",
+      "https://t.me/LootVault_Community",
+      "https://t.me/LootVaultDexBot",
+      "https://dexscreener.com/ton/eqaj_sedwxcvkh7zobjzbyo4quydzacazjrgsmtnymumxr1h"
+    ],
+    "websites": [
+      "https://lootvault.lol"
+    ]
   }
 }

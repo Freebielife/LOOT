@@ -1,6 +1,7 @@
 """Bundle a configured, independent observatory into one HTML file."""
 import base64
 import json
+import subprocess
 from pathlib import Path
 from scripts.icon_pack import embedded_script
 from scripts.project_runtime import publish_html
@@ -33,7 +34,8 @@ if (WEB / "project-background.webp").exists():
         (WEB / "project-background.webp").read_bytes()).decode("ascii")
 template = template.replace("__PROJECT_ART__", art).replace("__PROJECT_BG__", background)
 snapshot = json.loads((ROOT / "data/snapshot.json").read_text())
-payload = json.dumps(snapshot, ensure_ascii=False, separators=(",", ":")).replace("<", r"\u003c")
+compact = subprocess.run(["node", str(ROOT / "scripts/compact_snapshot.cjs")], input=json.dumps(snapshot), text=True, capture_output=True, check=True)
+payload = compact.stdout.replace("<", r"\u003c")
 result = template.replace("__SNAPSHOT__", payload)
 if any(x in result for x in ("/*APP*/", "/*STYLE*/", "/*LOADER*/", "/*MARKET_CAP*/",
                              "__PROJECT_ART__", "__PROJECT_BG__", "__BADGE_")):
