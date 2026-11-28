@@ -61,7 +61,7 @@ def zero_burns(previous, now):
     start = max(1, previous.get("asOf", now - 7 * 86400) - 3600)
     answers = {r["tx"]: r for r in previous.get("rows", []) if r["time"] < start}
     old = {r["tx"]: r for r in previous.get("rows", [])}
-    deadline = time.monotonic() + 90
+    deadline = time.monotonic() + 300
     for offset in range(0, 10000, 100):
         if time.monotonic() >= deadline:
             raise RuntimeError("Zero-address scan time budget exceeded; previous verified data retained")
